@@ -605,17 +605,23 @@ class QueenAnt(ThrowerAnt):
     """The Queen of the colony.  The game is over if a bee enters her place."""
 
     name = 'Queen'
-    "*** YOUR CODE HERE ***"
-    implemented = False
+    queen_count = 0 
+    food_cost = 2
+    armor = 1
+    imposter = False 
+    implemented = True     
 
     def __init__(self):
         ThrowerAnt.__init__(self, 1)
-        "*** YOUR CODE HERE ***"
+        QueenAnt.queen_count += 1 # Keep a count of how many QueenAnts have been constructed 
+        if QueenAnt.queen_count > 1: # We have an imposter 
+            self.imposter = True # Mark as imposter! 
 
     def action(self, colony):
         """A queen ant throws a leaf, but also doubles the damange of ants
         behind her.  Imposter queens do only one thing: die."""
-        "*** YOUR CODE HERE ***"
+        if self.imposter: 
+            self.reduce_armor(self.armor) 
 
 class AntRemover(Ant):
     """Allows the player to remove ants from the board in the GUI."""
