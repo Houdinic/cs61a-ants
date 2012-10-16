@@ -472,6 +472,16 @@ class Water(Place):
         if not type(insect).watersafe: 
             # Kill the non watersave insect by reducing armor by its armor amount 
             insect.reduce_armor(insect.armor)
+            
+class QueenPlace(Place): 
+    """QueenPlace is a place where the QueenAnt is"""
+    
+    def __init__(self): 
+        """Do something to construct the QueenPlace"""  
+    
+    @property 
+    def bees(self): 
+        """The bees that are either in the original colony.queen locaction or QueenAnt.place location"""    
 
 
 class FireAnt(Ant):
@@ -623,6 +633,7 @@ class QueenAnt(ThrowerAnt):
     def action(self, colony):
         """A queen ant throws a leaf, but also doubles the damange of ants
         behind her.  Imposter queens do only one thing: die."""
+        colony.queen = QueenPlace() 
         if self.imposter: 
             self.reduce_armor(self.armor) # Imposter must die! 
 
