@@ -378,7 +378,7 @@ class TestProblem9(AntTest):
         self.colony.places['tunnel_0_0'].add_insect(queen)
         self.colony.places['tunnel_0_1'].add_insect(imposter)
         queen.action(self.colony)
-        imposter.action(self.colony)
+        imposter.action(self.colony)       
         self.assertEqual(1, queen.armor, 'Long live the queen')
         self.assertEqual(0, imposter.armor, 'Imposters must die')
 
