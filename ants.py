@@ -68,8 +68,11 @@ class Place(object):
             self.bees.remove(insect)
         else:
             assert self.ant == insect, '{0} is not in {1}'.format(insect, self)
-            "*** YOUR CODE HERE ***"
-            self.ant = None
+            if insect.__class__ == QueenAnt: # We can't remove the true QueenAnt 
+                if insect.imposter is True: # Allow removal of imposter QueenAnt 
+                    self.ant = None           
+            else: 
+                self.ant = None
 
         insect.place = None
 
@@ -621,7 +624,7 @@ class QueenAnt(ThrowerAnt):
         """A queen ant throws a leaf, but also doubles the damange of ants
         behind her.  Imposter queens do only one thing: die."""
         if self.imposter: 
-            self.reduce_armor(self.armor) 
+            self.reduce_armor(self.armor) # Imposter must die! 
 
 class AntRemover(Ant):
     """Allows the player to remove ants from the board in the GUI."""
