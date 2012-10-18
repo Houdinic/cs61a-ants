@@ -140,6 +140,39 @@ class TestProblemB4(AntTest):
         self.assertIs(ant.nearest_bee(hive), near_bee, error_msg)
         ant.action(self.colony)
         self.assertIs(1, near_bee.armor, error_msg)
+        
+    def test_melee(self):
+        error_msg = "ThrowerAnt doesn't attack bees on its own square."
+        ant = ants.ThrowerAnt()
+        self.colony.places['tunnel_0_0'].add_insect(ant)
+        near_bee = ants.Bee(2)
+        self.colony.places['tunnel_0_0'].add_insect(near_bee)
+        
+        self.assertIs(ant.nearest_bee(self.colony.hive), near_bee, error_msg)
+        ant.action(self.colony)
+        self.assertIs(1, near_bee.armor, error_msg)
+
+    def test_random_shot(self):
+        """This test is probabilistic. Even with a correct implementation,
+        it will fail about 0.42% of the time.
+        """
+        error_msg = 'ThrowerAnt does not appear to choose random targets'
+        #Place ant
+        ant = ants.ThrowerAnt()
+        self.colony.places['tunnel_0_0'].add_insect(ant)
+        #Place two ultra-bees to test randomness
+        bee = ants.Bee(1001)
+        self.colony.places['tunnel_0_3'].add_insect(bee)
+        self.colony.places['tunnel_0_3'].add_insect(ants.Bee(1001))
+        
+        #Throw 1000 times. bee should take ~1000*1/2 = ~500 damage,
+        #and have ~501 remaining.
+        for _ in range(1000):
+            ant.action(self.colony)
+        #Test if damage to bee 1 is within 3 SD (~46 damage)
+        def dmg_within_tolerance():
+            return abs(bee.armor-501) < 46
+        self.assertIs(True, dmg_within_tolerance(), error_msg)
 
 
     def test_nearest_bee_not_in_hive(self):
@@ -160,6 +193,20 @@ class TestProblemB5(AntTest):
         self.assertIs(3, ants.LongThrower.food_cost, 'LongThrower has wrong cost')
         self.assertIs(1, short_t.armor, 'ShortThrower has wrong armor')
         self.assertIs(1, long_t.armor, 'LongThrower has wrong armor')
+        
+    def test_range(self):
+        error_msg = 'Range should not be static'
+        #Buff ant range
+        ant = ants.ShortThrower()
+        ant.max_range = 10
+        self.colony.places['tunnel_0_0'].add_insect(ant)
+        
+        #Place a bee out of normal range
+        bee = ants.Bee(2)
+        self.colony.places['tunnel_0_6'].add_insect(bee)
+        ant.action(self.colony)
+        
+        self.assertIs(bee.armor, 1, error_msg)
 
     def test_long(self):
         error_msg = 'LongThrower has the wrong range'
@@ -208,6 +255,19 @@ class TestProblemA7(AntTest):
         p1.add_insect(ants.NinjaAnt())
         bee.action(self.colony)
         self.assertIs(p0, bee.place, error_msg)
+        
+    def test_mod_damage(self):
+        error_msg = 'Ninja damage should not be static'
+        place = self.colony.places['tunnel_0_0']
+        bee = ants.Bee(900)
+        place.add_insect(bee)
+        #Amp up damage
+        buffNinja = ants.NinjaAnt()
+        buffNinja.damage = 500
+        place.add_insect(buffNinja)
+        
+        buffNinja.action(self.colony)
+        self.assertEqual(400, bee.armor, error_msg)
 
     def test_ninja_deadliness(self):
         error_msg = 'NinjaAnt does not strike all bees in its place'
@@ -234,6 +294,21 @@ class TestProblemB6(AntTest):
         water.add_insect(ant)
         self.assertIs(water, ant.place, error_msg)
         self.assertIs(1, ant.armor, error_msg)
+        
+    def test_scuba_in_water(self):
+        #Create water
+        water = ants.Water('water')
+        #Link water up to a tunnel
+        water.entrance = self.colony.places['tunnel_0_1']
+        target = self.colony.places['tunnel_0_4']
+        #Set up ant/bee
+        ant = ants.ScubaThrower()
+        bee = ants.Bee(3)
+        water.add_insect(ant)
+        target.add_insect(bee)
+        
+        ant.action(self.colony)
+        self.assertIs(2, bee.armor, "ScubaThrower doesn't throw in water")
 
     def test_scuba_on_land(self):
         place1 = self.colony.places['tunnel_0_0']
@@ -252,6 +327,43 @@ class TestProblemB7(AntTest):
         hungry = ants.HungryAnt()
         self.assertIs(4, ants.HungryAnt.food_cost, 'HungryAnt has wrong cost')
         self.assertIs(1, hungry.armor, 'HungryAnt has wrong armor')
+        
+    def test_hungry_waits(self):
+        """If you get an IndexError (not an AssertionError) when running
+        this test, it's possible that your HungryAnt is trying to eat a
+        bee when no bee is available.
+        """
+        
+        #Add hungry ant
+        hungry = ants.HungryAnt()
+        place = self.colony.places['tunnel_0_0']
+        place.add_insect(hungry)
+        
+        #Wait a few turns before adding bee
+        for _ in range(5):
+            hungry.action(self.colony)
+        #Add bee
+        bee = ants.Bee(3)
+        place.add_insect(bee)
+        hungry.action(self.colony)
+        
+        self.assertIs(0, bee.armor, 'HungryAnt didn\'t eat')
+        
+    def test_hungry_delay(self):        
+        #Add very hungry cater- um, ant
+        very_hungry = ants.HungryAnt()
+        very_hungry.time_to_digest = 0
+        place = self.colony.places['tunnel_0_0']
+        place.add_insect(very_hungry)
+        
+        #Add many bees
+        for _ in range(100):
+            place.add_insect(ants.Bee(3))
+        #Eat many bees
+        for _ in range(100):
+            very_hungry.action(self.colony)
+        
+        self.assertIs(0, len(place.bees), 'Digestion time should not be static')
 
     def test_hungry_eats_and_digests(self):
         hungry = ants.HungryAnt()
@@ -370,6 +482,25 @@ class TestProblem8(AntTest):
 class TestProblem9(AntTest):
     queen = ants.QueenAnt()
     imposter = ants.QueenAnt()
+    
+    def test_double_continuous(self):
+        """This test makes the queen buff one ant, then the other, to see
+        if the queen will continually buff newly added ants.
+        """
+        self.colony.places['tunnel_0_0'].add_insect(ants.ThrowerAnt())
+        self.colony.places['tunnel_0_2'].add_insect(TestProblem9.queen)
+        TestProblem9.queen.action(self.colony)
+
+        #Add ant and buff
+        ant = ants.ThrowerAnt()
+        self.colony.places['tunnel_0_1'].add_insect(ant)
+        TestProblem9.queen.action(self.colony)
+
+        #Attack a bee
+        bee = ants.Bee(3)
+        self.colony.places['tunnel_0_4'].add_insect(bee)
+        ant.action(self.colony)
+        self.assertEqual(1, bee.armor, "Queen does not buff new ants")
 
     def test_double(self):
         thrower = ants.ThrowerAnt()
