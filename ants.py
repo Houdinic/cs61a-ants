@@ -177,16 +177,11 @@ class Ant(Insect):
     @property         
     def adjusted_damage(self): 
         """Ants deal double the damage if they are in between the queen (behind) and the colony"""
-<<<<<<< HEAD
         assert hasattr(self, "damage"), "The ant does not have a damage attribute"         
         # self.place -- Somehow compare ant's position relative to queen's position and they must be in the same place
-        check = self.place
-        print(check)
-=======
-        assert hasattr(self, "damage"), "The ant does not have a damage attribute"                 
-        check = self.place        
->>>>>>> 8edb174a03abe1dcaec3be8a41cc5076ff814b3f
-        while check.entrance != None and check.entrance.name != 'Hive':
+        check = self.place      
+        assert check != None, "Check is equal to none"   
+        while check != None and check.entrance != None and check.entrance.name != 'Hive':
             check = check.entrance
             if check.ant.__class__ == QueenAnt:
                 return 2 * self.damage # Double the damage  
@@ -520,12 +515,15 @@ class FireAnt(Ant):
         _place = self.place
         _bees = _place.bees[:] 
         
-        # Reduce armor of bees in place by 3 (or double damage 6) if armor is LT or EQ to 0         
-        if self.armor <= 0:             
+        new_armor = self.armor - amount  # What will the armor be after we reduce it? 
+        
+        # Reduce armor of bees in place by 3 (or double damage 6) if new armor value is LT or EQ to 0         
+        if new_armor <= 0:             
             for bee in _bees: 
-                bee.reduce_armor(self.adjusted_damage)
-                 
-        # Call the Insect reduce_armor method 
+                bee.reduce_armor(self.adjusted_damage) 
+                
+        # Call the Insect reduce_armor method to actually reduce armor to new_armor amount 
+        # We don't reduce the armor until the end to avoid place issues (place of a dead ant is None) 
         Ant.reduce_armor(self, amount)
 
 class LongThrower(ThrowerAnt):
