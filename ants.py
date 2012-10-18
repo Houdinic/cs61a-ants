@@ -88,7 +88,7 @@ class Insect(object):
         """Create an Insect with an armor amount and a starting Place."""
         self.armor = armor
         self.place = place  # set by Place.add_insect and Place.remove_insect
-        
+        self.effects = {"stun": 0, "slow": 0}
 
     def reduce_armor(self, amount):   
         """Reduce armor by amount, and remove the insect from its place if it
@@ -125,6 +125,7 @@ class Bee(Insect):
     name = 'Bee'
     watersafe = True
 
+
     def sting(self, ant):
         """Attack an Ant, reducing the Ant's armor by 1."""
         ant.reduce_armor(1)
@@ -151,6 +152,7 @@ class Bee(Insect):
             if self.place.name != 'Hive' and self.armor > 0:
                 self.move_to(self.place.exit)
 
+    default_action = action   #required to remember old action
 
 class Ant(Insect):
     """An Ant occupies a place and does work for the colony."""
@@ -657,6 +659,12 @@ def make_slow(action):
     action -- An action method of some Bee
     """
     "*** YOUR CODE HERE ***"
+    def slow_action(bee, colony):
+        if colony.time % 2 == 0:
+            Bee.action(bee, colony)
+    def getName():
+        return "slow"
+    return slow_action, getName
 
 def make_stun(action):
     """Return a new action method that does nothing.
@@ -664,17 +672,43 @@ def make_stun(action):
     action -- An action method of some Bee
     """
     "*** YOUR CODE HERE ***"
+    def stunned_action(bee, colony):
+        pass
+    def getName():
+        return "stun"
+    return stunned_action, getName()
+
+def other_effect(effect, bee):
+    if effect == "stun":
+        return make_slow(Bee.action)
+    return make_stun(Bee.action)
+
 
 def apply_effect(effect, bee, duration):
     """Apply a status effect to a Bee that lasts for duration turns."""
     "*** YOUR CODE HERE ***"
+    current_effect, name = effect(Bee.action)
+    bee.effects[name] = duration
+
+    def affected(colony):          #this method essentially replaces bee's action method until all effects are gone
+        nonlocal current_effect, name
+        current_effect(bee, colony)
+        for ef in bee.effects:      #decrements time for each effect on the bee
+            if bee.effects[ef] >= 1:
+                bee.effects[ef] -= 1
+        if bee.effects["stun"] == 0 and bee.effects["slow"] == 0:
+            bee.action = bee.default_action     
+        elif bee.effects[name] == 0:
+            current_effect, name = other_effect(name, bee)   #if effect runs out, then switch to previous effect
+
+    bee.action = affected
 
 
 class SlowThrower(ThrowerAnt):
     """ThrowerAnt that causes Slow on Bees."""
 
     name = 'Slow'    
-    implemented = False
+    implemented = True
 
     def throw_at(self, target):
         if target:
@@ -686,7 +720,7 @@ class StunThrower(ThrowerAnt):
 
     name = 'Stun'
     food_cost = 6 
-    implemented = False
+    implemented = True
 
     def throw_at(self, target):
         if target:
