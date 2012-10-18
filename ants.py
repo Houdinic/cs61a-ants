@@ -177,7 +177,8 @@ class Ant(Insect):
     @property         
     def adjusted_damage(self): 
         """Ants deal double the damage if they are in between the queen (behind) and the colony"""
-        assert hasattr(self, "damage"), "The ant does not have a damage attribute"                 
+        assert hasattr(self, "damage"), "The ant does not have a damage attribute"         
+        # self.place -- Somehow compare ant's position relative to queen's position and they must be in the same place
         check = self.place      
         assert check != None, "Check is equal to none"   
         while check != None and check.entrance != None and check.entrance.name != 'Hive':
