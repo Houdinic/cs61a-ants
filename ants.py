@@ -176,8 +176,8 @@ class Ant(Insect):
     def adjusted_damage(self): 
         """Ants deal double the damage if they are in between the queen (behind) and the colony"""
         assert hasattr(self, "damage"), "This ant does not have a damage attribute"         
+        # self.place -- Somehow compare ant's position relative to queen's position and they must be in the same place 
         return 2 * self.damage # Return doubled damage 
-
 
 class HarvesterAnt(Ant):
     """HarvesterAnt produces 1 additional food per turn for the colony."""
