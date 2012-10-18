@@ -479,15 +479,18 @@ class Water(Place):
             # Kill the non watersave insect by reducing armor by its armor amount 
             insect.reduce_armor(insect.armor)
             
-class QueenPlace(Place): 
+class QueenPlace(object): 
     """QueenPlace is a place where the QueenAnt is"""
     
-    def __init__(self): 
-        """Do something to construct the QueenPlace"""  
+    def __init__(self, queen_place, colony_place): 
+        """Do set the lists of bees to construct the QueenPlace"""  
+        self.queen_place_bees = queen_place.bees # Bees in the original place of the QueenAnt.
+        self.colony_place_bees = colony_place.bees # Bees in the original colony.queen location 
     
     @property 
     def bees(self): 
         """The bees that are either in the original colony.queen locaction or QueenAnt.place location"""    
+        return self.queen_place_bees + self.colony_place_bees # Return the two bee lists concat. together 
 
 
 class FireAnt(Ant):
@@ -639,9 +642,12 @@ class QueenAnt(ThrowerAnt):
     def action(self, colony):
         """A queen ant throws a leaf, but also doubles the damange of ants
         behind her.  Imposter queens do only one thing: die."""
-        colony.queen = QueenPlace() 
         if self.imposter: 
             self.reduce_armor(self.armor) # Imposter must die! 
+        else: 
+            colony.queen = QueenPlace(self.place, colony.queen) # Queen's place (self.place) and the orig. colony.queen place 
+            ThrowerAnt.action(self, colony) # Queen is a thrower ant and performs action 
+        
 
 class AntRemover(Ant):
     """Allows the player to remove ants from the board in the GUI."""
