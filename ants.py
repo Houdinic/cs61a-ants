@@ -483,7 +483,7 @@ class Water(Place):
         # Call the add_insect method of parent Place 
         Place.add_insect(self, insect) 
         # Add our special Water class functionality that kills insect if not watersafe 
-        if not type(insect).watersafe: 
+        if not insect.watersafe: 
             # Kill the non watersave insect by reducing armor by its armor amount 
             insect.reduce_armor(insect.armor)
             
