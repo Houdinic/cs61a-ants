@@ -56,6 +56,36 @@ class TestProblemA4(AntTest):
         test_water = ants.Water('water_testProblemA4_0')
         test_water.add_insect(test_bee)
         self.assertIn(test_bee, test_water.bees, msg=error_msg)
+        
+    def test_water_deadliness_2(self):
+        error_msg = 'Water does not kill non-watersafe Insects'
+        test_ants = [ants.Bee(1000000), ants.HarvesterAnt(), ants.Ant(), ants.ThrowerAnt()]
+        test_ants[0].watersafe = False #Make the bee non-watersafe
+        test_water = ants.Water('water_TestProblemA4_0')
+        for test_ant in test_ants:
+            test_water.add_insect(test_ant)
+            self.assertIsNot(test_ant, test_water.ant, msg=error_msg)
+            self.assertIs(0, test_ant.armor, msg=error_msg)
+
+    def test_inheritance(self):
+        """This test assumes that you have passed test_water_safety.
+        This test may or may not cause... unusual behavior in other tests.
+        Comment it out if you're worried.
+        """
+        error_msg = "Water does not inherit Place behavior"
+        place_ai_method = ants.Place.add_insect #Save Place.add_insect method
+        #Replace with fake method
+        def fake_ai_method(self, insect):
+            insect.reduce_armor(2)
+        ants.Place.add_insect = fake_ai_method
+        #Test putting bee in water
+        test_bee = ants.Bee(10)
+        test_water = ants.Water('water_TestProblemA4_0')
+        test_water.add_insect(test_bee)
+        #Should activate fake method, reduce armor
+        self.assertIs(8, test_bee.armor, error_msg)
+        #Restore method
+        ants.Place.add_insect = place_ai_method
 
 
 class TestProblemA5(AntTest):
@@ -73,6 +103,18 @@ class TestProblemA5(AntTest):
         place.add_insect(ants.FireAnt())
         bee.action(self.colony)
         self.assertIs(2, bee.armor, error_msg)
+        
+    def test_fire_mod_damage(self):
+        error_msg = 'FireAnt damage should not be static'
+        place = self.colony.places['tunnel_0_0']
+        bee = ants.Bee(900)
+        place.add_insect(bee)
+        #Amp up damage
+        buffAnt = ants.FireAnt()
+        buffAnt.damage = 500
+        place.add_insect(buffAnt)        
+        bee.action(self.colony)
+        self.assertEqual(400, bee.armor, error_msg)
 
     def test_fire_deadliness(self):
         error_msg = 'FireAnt does not damage all Bees in its Place'
