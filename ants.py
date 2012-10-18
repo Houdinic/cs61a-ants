@@ -171,6 +171,12 @@ class Ant(Insect):
     def can_contain(self, ant): 
         if self.container and self.ant is None and ant.container is False: 
             return True
+    
+    @property         
+    def adjusted_damage(self): 
+        """Ants deal double the damage if they are in between the queen (behind) and the colony"""
+        assert hasattr(self, "damage"), "This ant does not have a damage attribute"         
+        return 2 * self.damage # Return doubled damage 
 
 
 class HarvesterAnt(Ant):
@@ -222,7 +228,7 @@ class ThrowerAnt(Ant):
     def throw_at(self, target):
         """Throw a leaf at the target Bee, reducing its armor."""
         if target is not None:
-            target.reduce_armor(self.damage)
+            target.reduce_armor(self.adjusted_damage)
 
     def action(self, colony):
         """Throw a leaf at the nearest Bee in range."""
@@ -499,10 +505,10 @@ class FireAnt(Ant):
         _bees = _place.bees[:] 
         # Call the Insect reduce_armor method 
         Ant.reduce_armor(self, amount)
-        # Reduce armor of bees in place by 3 if armor is LT or EQ to 0         
+        # Reduce armor of bees in place by 3 (or double damage 6) if armor is LT or EQ to 0         
         if self.armor <= 0:             
             for bee in _bees: 
-                bee.reduce_armor(3) 
+                bee.reduce_armor(self.adjusted_damage) 
 
 class LongThrower(ThrowerAnt):
     """A ThrowerAnt that only throws leaves at Bees at least 3 places away."""
