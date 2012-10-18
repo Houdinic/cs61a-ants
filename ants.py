@@ -564,12 +564,13 @@ class NinjaAnt(Ant):
     name = 'Ninja'
     armor = 1 
     food_cost = 6 
+    damage = 1
     blocks_path = False 
     implemented = True    
 
     def action(self, colony):       
         for bee in self.place.bees[:]:             
-            bee.reduce_armor(1) 
+            bee.reduce_armor(self.damage) 
 
 
 class ScubaThrower(ThrowerAnt):
