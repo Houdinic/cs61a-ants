@@ -687,7 +687,7 @@ def make_slow(action):
             Bee.action(bee, colony)
     def getName():
         return "slow"
-    return slow_action, getName
+    return slow_action, getName()
 
 def make_stun(action):
     """Return a new action method that does nothing.
