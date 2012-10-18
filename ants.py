@@ -1,6 +1,6 @@
 """
 The ants module implements game logic for Ants Vs. SomeBees.
-Name: Paul Deardorff, Steven Yang 
+Name: Paul Deardorff (Partner A), Steven Yang (Partner B) 
 Login: cs61a-aeo, cs61a-aex
 TA: Julia Oh 
 Section: 11
@@ -177,15 +177,20 @@ class Ant(Insect):
     @property         
     def adjusted_damage(self): 
         """Ants deal double the damage if they are in between the queen (behind) and the colony"""
+<<<<<<< HEAD
         assert hasattr(self, "damage"), "The ant does not have a damage attribute"         
         # self.place -- Somehow compare ant's position relative to queen's position and they must be in the same place
         check = self.place
         print(check)
+=======
+        assert hasattr(self, "damage"), "The ant does not have a damage attribute"                 
+        check = self.place        
+>>>>>>> 8edb174a03abe1dcaec3be8a41cc5076ff814b3f
         while check.entrance != None and check.entrance.name != 'Hive':
             check = check.entrance
-            if type(check.ant) == QueenAnt:
-                return 2 * self.damage
-        return self.damage
+            if check.ant.__class__ == QueenAnt:
+                return 2 * self.damage # Double the damage  
+        return self.damage # Return original damage 
 
 class HarvesterAnt(Ant):
     """HarvesterAnt produces 1 additional food per turn for the colony."""
@@ -333,7 +338,7 @@ class AntColony(object):
         if self.food < constructor.food_cost:
             print('Not enough food remains to place ' + ant_type_name)
         else:
-            self.places[place_name].add_insect(constructor())
+            self.places[place_name].add_insect(constructor())           
             self.food -= constructor.food_cost
             
     def remove_ant(self, place_name):
