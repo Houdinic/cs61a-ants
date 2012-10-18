@@ -177,12 +177,13 @@ class Ant(Insect):
     @property         
     def adjusted_damage(self): 
         """Ants deal double the damage if they are in between the queen (behind) and the colony"""
-        assert hasattr(self, "damage"), "The ant does not have a damage attribute"         
-        # self.place -- Somehow compare ant's position relative to queen's position and they must be in the same place 
-        if self.__class__ in [ThrowerAnt, FireAnt]: 
-            return 2 * self.damage # Return doubled damage 
-        else:   
-            return self.damage # Return normal damage 
+        assert hasattr(self, "damage"), "The ant does not have a damage attribute"                 
+        check = self.place        
+        while check.entrance != None and check.entrance.name != 'Hive':
+            check = check.entrance
+            if check.ant.__class__ == QueenAnt:
+                return 2 * self.damage # Double the damage  
+        return self.damage # Return original damage 
 
 class HarvesterAnt(Ant):
     """HarvesterAnt produces 1 additional food per turn for the colony."""
