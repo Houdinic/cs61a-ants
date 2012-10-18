@@ -180,7 +180,7 @@ class Ant(Insect):
         assert hasattr(self, "damage"), "The ant does not have a damage attribute"         
         # self.place -- Somehow compare ant's position relative to queen's position and they must be in the same place
         check = self.place
-        print (self.place)
+        print(check)
         while check.entrance != None and check.entrance.name != 'Hive':
             check = check.entrance
             if type(check.ant) == QueenAnt:
@@ -514,12 +514,14 @@ class FireAnt(Ant):
         # Save these variables before the ants are removed from the place 
         _place = self.place
         _bees = _place.bees[:] 
-        # Call the Insect reduce_armor method 
-        Ant.reduce_armor(self, amount)
+        
         # Reduce armor of bees in place by 3 (or double damage 6) if armor is LT or EQ to 0         
         if self.armor <= 0:             
             for bee in _bees: 
-                bee.reduce_armor(self.adjusted_damage) 
+                bee.reduce_armor(self.adjusted_damage)
+                 
+        # Call the Insect reduce_armor method 
+        Ant.reduce_armor(self, amount)
 
 class LongThrower(ThrowerAnt):
     """A ThrowerAnt that only throws leaves at Bees at least 3 places away."""
