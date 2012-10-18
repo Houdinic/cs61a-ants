@@ -175,7 +175,7 @@ class Ant(Insect):
     @property         
     def adjusted_damage(self): 
         """Ants deal double the damage if they are in between the queen (behind) and the colony"""
-        assert hasattr(self, "damage"), "This ant does not have a damage attribute"         
+        assert hasattr(self, "damage"), "The ant does not have a damage attribute"         
         # self.place -- Somehow compare ant's position relative to queen's position and they must be in the same place 
         return 2 * self.damage # Return doubled damage 
 
@@ -327,7 +327,7 @@ class AntColony(object):
         else:
             self.places[place_name].add_insect(constructor())
             self.food -= constructor.food_cost
-
+            
     def remove_ant(self, place_name):
         """Remove an Ant from the Colony."""
         place = self.places[place_name]
@@ -482,15 +482,15 @@ class Water(Place):
 class QueenPlace(object): 
     """QueenPlace is a place where the QueenAnt is"""
     
-    def __init__(self, queen_place, colony_place): 
+    def __init__(self, queen, colony_location): 
         """Do set the lists of bees to construct the QueenPlace"""  
-        self.queen_place_bees = queen_place.bees # Bees in the original place of the QueenAnt.
-        self.colony_place_bees = colony_place.bees # Bees in the original colony.queen location 
+        self.queen = queen # Store the passed in queen as an inst. var 
+        self.colony_location = colony_location # Store the orig. colony location as an inst. var 
     
     @property 
     def bees(self): 
         """The bees that are either in the original colony.queen locaction or QueenAnt.place location"""    
-        return self.queen_place_bees + self.colony_place_bees # Return the two bee lists concat. together 
+        return self.queen.place.bees + self.colony_location.bees # Return the two bee lists concat. together 
 
 
 class FireAnt(Ant):
@@ -641,11 +641,11 @@ class QueenAnt(ThrowerAnt):
 
     def action(self, colony):
         """A queen ant throws a leaf, but also doubles the damange of ants
-        behind her.  Imposter queens do only one thing: die."""
+        behind her.  Imposter queens do only one thing: die."""        
         if self.imposter: 
-            self.reduce_armor(self.armor) # Imposter must die! 
+            self.reduce_armor(self.armor) # Kill the imposter immediately 
         else: 
-            colony.queen = QueenPlace(self.place, colony.queen) # Queen's place (self.place) and the orig. colony.queen place 
+            colony.queen = QueenPlace(self, colony.queen) # Queen's place (self.place) and the orig. colony.queen place 
             ThrowerAnt.action(self, colony) # Queen is a thrower ant and performs action 
         
 
